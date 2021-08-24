@@ -9,6 +9,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.ServiceConnection;
+import android.graphics.Color;
 import android.hardware.usb.UsbDevice;
 import android.hardware.usb.UsbDeviceConnection;
 import android.hardware.usb.UsbManager;
@@ -27,6 +28,7 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -36,6 +38,11 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
+import com.android.volley.AuthFailureError;
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.toolbox.StringRequest;
+import com.android.volley.toolbox.Volley;
 import com.hoho.android.usbserial.driver.SerialTimeoutException;
 import com.hoho.android.usbserial.driver.UsbSerialDriver;
 import com.hoho.android.usbserial.driver.UsbSerialPort;
@@ -43,7 +50,9 @@ import com.hoho.android.usbserial.driver.UsbSerialProber;
 
 import java.io.IOException;
 import java.util.EnumSet;
-
+import java.util.HashMap;
+import java.util.Map;
+import android.content.pm.ActivityInfo;
 public class TerminalFragment extends Fragment implements ServiceConnection, SerialListener {
 
     private enum Connected { False, Pending, True }
@@ -61,6 +70,9 @@ public class TerminalFragment extends Fragment implements ServiceConnection, Ser
     private Connected connected = Connected.False;
     private boolean initialStart = true;
     private boolean hexEnabled = false;
+    private boolean laserOn = false;
+    private boolean holdClick = false;
+    private boolean rScreen = false;
     private boolean controlLinesEnabled = false;
     private boolean pendingNewline = false;
     private String newline = TextUtil.newline_crlf;
@@ -179,6 +191,34 @@ public class TerminalFragment extends Fragment implements ServiceConnection, Ser
         sendText.setHint(hexEnabled ? "HEX mode" : "");
 
         View sendBtn = view.findViewById(R.id.send_btn);
+        Button laserBtn = (Button)view.findViewById(R.id.laser_btn);
+        View lBtn = view.findViewById(R.id.L_btn);
+        View rBtn = view.findViewById(R.id.R_btn);
+        View rtBtn = view.findViewById(R.id.rot_btn);
+        rtBtn.setOnClickListener(v->{
+            if(rScreen){
+                rScreen = false;
+                getActivity().setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+            }else{
+                rScreen = true;
+                getActivity().setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_REVERSE_PORTRAIT);
+            }
+        });
+        laserBtn.setOnClickListener(v -> laserControl(laserBtn));
+        lBtn.setOnClickListener(v-> {
+            if(holdClick){
+                holdClick = false;
+                mouseClick("4");
+            }else{
+                mouseClick("1");
+            }
+        });
+        lBtn.setOnLongClickListener(v->{
+           holdClick = true;
+           mouseClick("3");
+           return false;
+        });
+        rBtn.setOnClickListener(v->mouseClick("2"));
         sendBtn.setOnClickListener(v -> send(sendText.getText().toString()));
         controlLines = new ControlLines(view);
         return view;
@@ -305,6 +345,35 @@ public class TerminalFragment extends Fragment implements ServiceConnection, Ser
         usbSerialPort = null;
     }
 
+    private void laserControl (Button laser_btn){
+        if(laserOn){
+            send("0");
+            laserOn = false;
+            laser_btn.setText("Off");
+            laser_btn.setBackgroundColor(Color.GRAY);
+        }else{
+            send("1");
+            laserOn = true;
+            laser_btn.setText("On");
+            laser_btn.setBackgroundColor(Color.RED);
+        }
+    }
+    private void mouseClick(String ind){
+        String url = "http://192.168.0.14:5000/ck";
+        StringRequest sq = new StringRequest(Request.Method.POST,url,
+                res->Toast.makeText(getActivity(),"Success",Toast.LENGTH_LONG).show(),
+                err->Toast.makeText(getActivity(),"Success",Toast.LENGTH_LONG).show()
+                ){
+            @Override
+            protected Map<String,String> getParams() throws AuthFailureError{
+                Map<String,String> params = new HashMap<>();
+                params.put("sig",ind);
+                return params;
+            }
+        };
+        RequestQueue requestQueue = Volley.newRequestQueue(getActivity());
+        requestQueue.add(sq);
+    }
     private void send(String str) {
         if(connected != Connected.True) {
             Toast.makeText(getActivity(), "not connected", Toast.LENGTH_SHORT).show();

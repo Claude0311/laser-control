@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical">
@@ -25,15 +25,15 @@
             android:id="@+id/controlLineCts"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:minWidth="48sp"
             android:clickable="false"
+            android:minWidth="48sp"
             android:textColor="@android:color/secondary_text_dark"
             android:textOff="CTS"
             android:textOn="CTS" />
 
         <View
-            android:layout_height="match_parent"
-            android:layout_width="6dp" />
+            android:layout_width="6dp"
+            android:layout_height="match_parent" />
 
         <ToggleButton
             android:id="@+id/controlLineDtr"
@@ -54,8 +54,8 @@
             android:textOn="DSR" />
 
         <View
-            android:layout_height="match_parent"
-            android:layout_width="6dp" />
+            android:layout_width="6dp"
+            android:layout_height="match_parent" />
 
         <ToggleButton
             android:id="@+id/controlLineCd"
@@ -71,8 +71,8 @@
             android:id="@+id/controlLineRi"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:minWidth="48sp"
             android:clickable="false"
+            android:minWidth="48sp"
             android:textColor="@android:color/secondary_text_dark"
             android:textOff="RI"
             android:textOn="RI" />
@@ -81,8 +81,53 @@
 
     <View
         android:layout_width="match_parent"
-        android:background="?android:attr/listDivider"
-        android:layout_height="2dp" />
+        android:layout_height="2dp"
+        android:background="?android:attr/listDivider" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <Button
+            android:id="@+id/L_btn"
+            android:layout_width="wrap_content"
+            android:layout_height="200dp"
+            android:layout_weight="1"
+            android:text="L" />
+
+        <Button
+            android:id="@+id/R_btn"
+            android:layout_width="wrap_content"
+            android:layout_height="200dp"
+            android:layout_weight="1"
+            android:text="R" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <TextView
+            android:id="@+id/textView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1" />
+
+        <ImageButton
+            android:id="@+id/rot_btn"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            app:srcCompat="@android:drawable/ic_menu_always_landscape_portrait" />
+
+        <TextView
+            android:id="@+id/textView2"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1" />
+
+    </LinearLayout>
 
     <TextView
         android:id="@+id/receive_text"
@@ -96,8 +141,21 @@
 
     <View
         android:layout_width="match_parent"
-        android:background="?android:attr/listDivider"
-        android:layout_height="2dp" />
+        android:layout_height="2dp"
+        android:background="?android:attr/listDivider" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <Button
+            android:id="@+id/laser_btn"
+            android:layout_width="match_parent"
+            android:layout_height="200dp"
+            android:background="#6C6C6C"
+            android:text="off" />
+    </LinearLayout>
 
     <LinearLayout
         android:layout_width="match_parent"
