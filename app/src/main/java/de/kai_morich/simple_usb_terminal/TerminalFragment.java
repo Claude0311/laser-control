@@ -64,6 +64,7 @@ public class TerminalFragment extends Fragment implements ServiceConnection, Ser
 
     private TextView receiveText;
     private TextView sendText;
+    private TextView uriText;
     private ControlLines controlLines;
     private TextUtil.HexWatcher hexWatcher;
 
@@ -185,6 +186,7 @@ public class TerminalFragment extends Fragment implements ServiceConnection, Ser
         receiveText.setMovementMethod(ScrollingMovementMethod.getInstance());
 
         sendText = view.findViewById(R.id.send_text);
+        uriText = view.findViewById(R.id.uri_text);
         hexWatcher = new TextUtil.HexWatcher(sendText);
         hexWatcher.enable(hexEnabled);
         sendText.addTextChangedListener(hexWatcher);
@@ -347,22 +349,40 @@ public class TerminalFragment extends Fragment implements ServiceConnection, Ser
 
     private void laserControl (Button laser_btn){
         if(laserOn){
+            laserClick("0");
             send("0");
             laserOn = false;
             laser_btn.setText("Off");
             laser_btn.setBackgroundColor(Color.GRAY);
         }else{
+            laserClick("1");
             send("1");
             laserOn = true;
             laser_btn.setText("On");
             laser_btn.setBackgroundColor(Color.RED);
         }
     }
-    private void mouseClick(String ind){
-        String url = "http://192.168.0.14:5000/ck";
+    private void laserClick(String ind){
+        String url = uriText.getText().toString()+":5000/laser";
         StringRequest sq = new StringRequest(Request.Method.POST,url,
-                res->Toast.makeText(getActivity(),"Success",Toast.LENGTH_LONG).show(),
-                err->Toast.makeText(getActivity(),"Success",Toast.LENGTH_LONG).show()
+                res->Toast.makeText(getActivity(),"Success to "+url,Toast.LENGTH_LONG).show(),
+                err->Toast.makeText(getActivity(),"Error",Toast.LENGTH_LONG).show()
+        ){
+            @Override
+            protected Map<String,String> getParams() throws AuthFailureError{
+                Map<String,String> params = new HashMap<>();
+                params.put("sig",ind);
+                return params;
+            }
+        };
+        RequestQueue requestQueue = Volley.newRequestQueue(getActivity());
+        requestQueue.add(sq);
+    }
+    private void mouseClick(String ind){
+        String url = uriText.getText().toString()+":5000/ck";
+        StringRequest sq = new StringRequest(Request.Method.POST,url,
+                res->Toast.makeText(getActivity(),"Success to "+url,Toast.LENGTH_LONG).show(),
+                err->Toast.makeText(getActivity(),"Error",Toast.LENGTH_LONG).show()
                 ){
             @Override
             protected Map<String,String> getParams() throws AuthFailureError{
